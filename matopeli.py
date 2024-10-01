@@ -2,7 +2,7 @@
 import sys
 import random
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QMenu, QGraphicsTextItem
-from PySide6.QtGui import QPainter, QPen, QBrush, QFont
+from PySide6.QtGui import QPainter, QPen, QBrush, QFont, QPixmap
 from PySide6.QtCore import Qt, QTimer
 
 # vakiot
@@ -42,10 +42,21 @@ class SnakeGame(QGraphicsView):
         self.is_game_started = False  # Nollataan pelin käynnistys
         self.return_to_menu = False  # Nollataan tila, jotta valikko toimii normaalisti
         self.scene().clear()
+
+        # Ladataan ja asetetaan taustakuva
+        background = QPixmap("matokuva.png")
+
+        # Tarkistetaan, että kuva on ladattu oikein
+        if background.isNull():
+            print("Kuvaa ei löytynyt tai sitä ei voitu ladata.")
+        else:
+            # Skaalataan kuva sopimaan pelialueelle
+            background = background.scaled(CELL_SIZE * GRID_WIDTH, CELL_SIZE * GRID_HEIGHT, Qt.KeepAspectRatioByExpanding)
+            self.scene().addPixmap(background)
+
         self.show_difficulty_options()
 
     def show_difficulty_options(self):
-        self.scene().clear()
         # Näytetään valittava vaikeustaso ja sen ohje
         instruction_text = QGraphicsTextItem("Valitse vaikeustaso tai sulje peli: ")
         instruction_text.setFont(QFont("Arial", 16))
