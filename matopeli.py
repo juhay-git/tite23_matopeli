@@ -1,4 +1,4 @@
-# 'pip install PySide6' tarvitaan 
+# 'pip install PySide6' tarvitaan
 import sys
 import random
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QMenu
@@ -7,7 +7,9 @@ from PySide6.QtCore import Qt, QTimer
 
 ## Jennyn kommentti - Oma koodinpätkä tallessa
 # update_game metodiin suuntien tarkistuksen jälkeen
-# \n# board limits\nif new_head in self.snake or not 
+
+# \n# board limits\n
+# if new_head in self.snake or not
 # (0 <= new_head[0] < GRID_WIDTH) or not (0 <= new_head[1] < GRID_HEIGHT):\n  
 #   self.timer.stop()\n    
 
@@ -26,7 +28,7 @@ class SnakeGame(QGraphicsView):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_game)
-        
+
         self.start_game()
 
     def keyPressEvent(self, event):
@@ -53,6 +55,9 @@ class SnakeGame(QGraphicsView):
             new_head = (head_x, head_y - 1)
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
+        if new_head in self.snake or not (0 <= new_head[0] < GRID_WIDTH) or not (0 <= new_head[1] < GRID_HEIGHT):
+            self.timer.stop()
+
 
         self.snake.insert(0, new_head)
         
@@ -66,7 +71,7 @@ class SnakeGame(QGraphicsView):
         for segment in self.snake:
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
-        
+
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
