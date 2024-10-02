@@ -19,8 +19,7 @@ class SnakeGame(QGraphicsView):
         self.setSceneRect(0, 0, CELL_SIZE * GRID_WIDTH, CELL_SIZE * GRID_HEIGHT)
 
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_game)
-        
+        self.timer.timeout.connect(self.update_game)        
         self.start_game()
 
     def keyPressEvent(self, event):
@@ -74,6 +73,10 @@ class SnakeGame(QGraphicsView):
 
         self.scene().addText(f"Points: {self.score}", QFont("Arial", 10)) ## pistelaskun piirto -JH
         self.rainbow()
+
+        #print food
+        fx,fy = self.food
+        self.scene().addRect(fx * CELL_SIZE,fy * CELL_SIZE, CELL_SIZE, CELL_SIZE,QPen(Qt.black),QBrush(Qt.red))
         
     def start_game(self):
         self.score = 0 ## pistelaskun muuttuja -JH
@@ -82,6 +85,14 @@ class SnakeGame(QGraphicsView):
         self.timer.start(300)       
         self.pen = QPen(Qt.green) ##rgb -JH
         self.brush = QBrush(Qt.red) ##rgb -JH
+        self.food = self.spawn_food() 
+
+    def spawn_food(self):
+        while True:
+            x=random.randint(0,GRID_WIDTH -1)
+            y=random.randint(0, GRID_HEIGHT-1)
+            if(x, y) not in self.snake:
+                return x, y
 
 def main():
     app = QApplication(sys.argv)
