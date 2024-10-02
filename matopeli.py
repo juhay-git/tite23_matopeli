@@ -1,3 +1,5 @@
+
+# 'pip install PySide6' tarvitaan
 import sys
 import random
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene
@@ -19,7 +21,7 @@ class SnakeGame(QGraphicsView):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_game)
-        
+
         self.start_game()
 
     def keyPressEvent(self, event):
@@ -46,6 +48,9 @@ class SnakeGame(QGraphicsView):
             new_head = (head_x, head_y - 1)
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
+        if new_head in self.snake or not (0 <= new_head[0] < GRID_WIDTH) or not (0 <= new_head[1] < GRID_HEIGHT):
+            self.timer.stop()
+
 
 
         
@@ -67,10 +72,12 @@ class SnakeGame(QGraphicsView):
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
 
+
         # Piirretään ruoka
         food_x, food_y = self.food
         self.scene().addEllipse(food_x * CELL_SIZE, food_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.red), QBrush(Qt.red))
         
+
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
