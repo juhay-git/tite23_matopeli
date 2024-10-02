@@ -48,16 +48,18 @@ class SnakeGame(QGraphicsView):
             new_head = (head_x, head_y + 1)
 
         # board limits
-        if new_head in self.snake or not (0 <= new_head < GRID_WIDTH) or not (0 <= new_head < GRID_HEIGHT):
+        """*if new_head in self.snake or not (0 <= new_head < GRID_WIDTH) or not (0 <= new_head < GRID_HEIGHT):
             self.timer.stop()
             return
-
+        """
         self.snake.insert(0, new_head)
         
         self.snake.pop()
         ## self.score += 1 ## pisteen lisäys kun syödään -JH
         self.print_game()
-        
+        if(self.food in self.snake):
+            self.score = self.score + 1
+            self.food = self.spawn_food()
 
     def rainbow(self): ## lisätty RGB
         r = random.randrange(0, 255+1)
