@@ -42,10 +42,9 @@ class SnakeGame(QGraphicsView):
             self.game_over_flag = False  # Nollataan peli
 
         elif self.game_over_flag:  # Uuden pelin aloitus Game Over -tilanteessa
-            if key not in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):  # Ei sallita nuolinäppäimiä
-                self.scene().clear()
-                self.init_screen()
-                self.game_started = False
+            self.scene().clear()
+            self.init_screen()
+            self.game_started = False
 
         if key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
             # päivitetään suunta vain jos se ei ole vastakkainen valitulle suunnalle
