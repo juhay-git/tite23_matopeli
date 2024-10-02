@@ -1,8 +1,8 @@
 # 'pip install PySide6' tarvitaan 
-import sys
+import sys, time
 import random
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QMenu
-from PySide6.QtGui import QPainter, QPen, QBrush, QFont
+from PySide6.QtGui import QPainter, QPen, QBrush, QFont, QColor
 from PySide6.QtCore import Qt, QTimer
 
 # vakiot
@@ -51,20 +51,37 @@ class SnakeGame(QGraphicsView):
         self.snake.insert(0, new_head)
         
         self.snake.pop()
-
+        ## self.score += 1 ## pisteen lisäys kun syödään -JH
         self.print_game()
+        
+
+    def rainbow(self): ## lisätty RGB
+        r = random.randrange(0, 255+1)
+        g = random.randrange(0, 255+1)
+        b = random.randrange(0, 255+1)
+        
+        self.pen.setColor(QColor(r, g, b, 255))
+        self.brush.setColor(QColor(r, g, b, 255))
+        
 
     def print_game(self):
         self.scene().clear()
+        
 
         for segment in self.snake:
             x, y = segment
-            self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
+            self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, self.pen, self.brush)
+
+        self.scene().addText(f"Points: {self.score}", QFont("Arial", 10)) ## pistelaskun piirto -JH
+        self.rainbow()
         
     def start_game(self):
+        self.score = 0 ## pistelaskun muuttuja -JH
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
-        self.timer.start(300)
+        self.timer.start(300)       
+        self.pen = QPen(Qt.green) ##rgb -JH
+        self.brush = QBrush(Qt.red) ##rgb -JH
 
 def main():
     app = QApplication(sys.argv)
