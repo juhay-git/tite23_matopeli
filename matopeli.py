@@ -52,7 +52,6 @@ class SnakeGame(QGraphicsView):
         
         self.snake.pop()
         ## self.score += 1 ## pisteen lisäys kun syödään -JH
-
         self.print_game()
 
     def print_game(self):
