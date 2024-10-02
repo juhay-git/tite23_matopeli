@@ -59,6 +59,14 @@ class SnakeGame(QGraphicsView):
             elif key == Qt.Key_Down and self.direction != Qt.Key_Up:
                 self.direction = key
 
+    def spawn_food(self):
+        while True:
+            x = random.randint(0, GRID_WIDTH - 1)
+            y = random.randint(0, GRID_HEIGHT - 1)
+            if (x, y) not in self.snake:
+                return x, y
+
+
     def update_game(self):
         head_x, head_y = self.snake[0]
 
@@ -71,7 +79,17 @@ class SnakeGame(QGraphicsView):
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
 
-                # Tarkista törmääkö mato itseensä tai pelialueen reunaan
+
+ 
+        if new_head == self.food:
+            self.snake.insert(0, new_head)
+            self.food = self.spawn_food()
+        else:
+            self.snake.insert(0, new_head)
+            self.snake.pop()
+
+             
+
         if (new_head in self.snake or
             new_head[0] < 0 or new_head[0] >= GRID_WIDTH or
             new_head[1] < 0 or new_head[1] >= GRID_HEIGHT):
@@ -80,7 +98,13 @@ class SnakeGame(QGraphicsView):
 
         self.snake.insert(0, new_head)
         
-        self.snake.pop()
+        # Tarkista, söikö mato ruokaa
+        if new_head == self.food:
+            self.score += 1
+            self.place_food()  # Lisää uusi ruoka
+        else:
+            self.snake.pop()
+
 
         self.print_game()
 
@@ -91,15 +115,32 @@ class SnakeGame(QGraphicsView):
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
 
-    
+
+        self.scene().addText(f"Score: {self.score}", QFont("Arial", 12))
+        fx, fy = self.food
+        self.scene().addRect(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.red))
         
 
+
+     def place_food(self):
+        # Aseta ruoka satunnaiseen paikkaan
+        while True:
+            self.food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+            if self.food not in self.snake:  # Varmista, että ruoka ei ole madon päällä
+                break
+        food_x, food_y = self.food
+        self.scene().addRect(food_x * CELL_SIZE, food_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.red), QBrush(Qt.red))
+        
+        self.food = self.spawn_food()
+        self.timer.start(300)
 
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
-        self.timer.start(300)
 
+        self.score = 0  # Alusta pistelasku
+        self.place_food()
+        self.timer.start(300)
 
     def game_over(self):
         # Näytä "Game Over" -teksti pelin päätyttyä
