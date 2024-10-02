@@ -4,6 +4,9 @@ import random
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QMenu, QGraphicsTextItem
 from PySide6.QtGui import QPainter, QPen, QBrush, QFont, QPixmap
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtMultimedia import QSoundEffect, QMediaPlayer, QAudioOutput
+from PySide6.QtCore import QUrl
+
 
 # vakiot
 CELL_SIZE = 20
@@ -27,6 +30,15 @@ class SnakeGame(QGraphicsView):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_game)
+
+        self.game_over_sound = QSoundEffect()
+        self.game_over_sound.setSource(QUrl.fromLocalFile("game_over.wav"))
+        self.game_over_sound.setVolume(0.5)  # Säädä äänenvoimakkuutta halutessasi
+
+        self.background_music_player = QMediaPlayer(self)
+        self.audio_output = QAudioOutput(self)
+        self.background_music_player.setAudioOutput(self.audio_output)
+        self.audio_output.setVolume(9.5)  # Voit säätää äänenvoimakkuutta
         
         self.is_game_started = False  # Peli ei ole käynnissä aluksi
         self.is_game_over = False  # Pelin tila (päättynyt vai ei)
@@ -42,6 +54,10 @@ class SnakeGame(QGraphicsView):
         self.is_game_started = False  # Nollataan pelin käynnistys
         self.return_to_menu = False  # Nollataan tila, jotta valikko toimii normaalisti
         self.scene().clear()
+
+        self.background_music_player.setSource(QUrl.fromLocalFile("alkuvalikontausta.mp3"))
+        self.background_music_player.setLoops(QMediaPlayer.Infinite)  # Soittaa musiikkia loputtomasti
+        self.background_music_player.play()
 
         # Ladataan ja asetetaan taustakuva
         background = QPixmap("matokuva.png")
@@ -184,6 +200,9 @@ class SnakeGame(QGraphicsView):
     def game_over(self):
         self.is_game_over = True  # Pelin tila on nyt "päättynyt"
         self.timer.stop()  # Pysäytetään pelin päivitys
+
+        # Soitetaan game over -ääni
+        self.game_over_sound.play()
         
         # Näytetään "Game Over" -teksti keskellä ruutua
         game_over_text = QGraphicsTextItem("GAME OVER")
@@ -205,6 +224,7 @@ class SnakeGame(QGraphicsView):
         self.scene().addItem(restart_text)
 
     def start_game(self):
+        self.background_music_player.stop()  # Pysäytä musiikki, kun peli alkaa
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
         self.generate_food()  # Luodaan ensimmäinen pallo
