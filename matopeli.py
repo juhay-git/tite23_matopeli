@@ -27,18 +27,27 @@ class SnakeGame(QGraphicsView):
     def init_screen(self):
         start_text = self.scene().addText("Press any key to start", QFont("Arial", 18))
         text_width = start_text.boundingRect().width()
-        text_x = (self.width() - text_width)
+        text_x = (self.width() - text_width)/5
         start_text.setPos(text_x, GRID_HEIGHT * CELL_SIZE / 2)
 
-    
+    def draw_board_limits(self):
+        pen = QPen(Qt.black)
+        self.scene().addRect(0, 0, CELL_SIZE * GRID_WIDTH, CELL_SIZE * GRID_HEIGHT, pen)
+
     def keyPressEvent(self, event):
         key = event.key()
         
         if not self.game_started:
-            self.scene().clear
+            self.scene().clear()  # Tyhjennetään näyttö
             self.start_game()
             self.game_started = True
+            self.game_over_flag = False  # Nollataan peli
         
+        elif self.game_over_flag:  # Uuden pelin aloitus Game Over -tilanteessa
+            if key not in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):  # Ei sallita nuolinäppäimiä
+                self.scene().clear()
+                self.init_screen()
+                self.game_started = False
         if key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
             # päivitetään suunta vain jos se ei ole vastakkainen valitulle suunnalle
             if key == Qt.Key_Left and self.direction != Qt.Key_Right:
@@ -101,15 +110,13 @@ class SnakeGame(QGraphicsView):
 
     def print_game(self):
         self.scene().clear()
-
+        self.draw_board_limits()  # Piirretään rajat uudelleen
         for segment in self.snake:
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
 
 
         self.scene().addText(f"Score: {self.score}", QFont("Arial", 12))
-    
-     
         fx, fy = self.food
         self.scene().addRect(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.red))
         
@@ -137,11 +144,12 @@ class SnakeGame(QGraphicsView):
 
     def game_over(self):
         # Näytä "Game Over" -teksti pelin päätyttyä
-            game_over_text = self.scene().addText("Game Over", QFont("Arial", 24))
+            game_over_text = self.scene().addText("Game Over\nPress any key to start new game", QFont("Arial", 18))
             text_width = game_over_text.boundingRect().width()
             text_x = (self.width() - text_width) / 2
             game_over_text.setPos(text_x, GRID_HEIGHT * CELL_SIZE / 2)
             self.timer.stop()
+            self.game_over_flag = True  # Asetetaan peli päättyneeksi
 
 def main():
     app = QApplication(sys.argv)
