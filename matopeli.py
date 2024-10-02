@@ -15,9 +15,9 @@ GRID_HEIGHT = 15
 
 # Vaikeustasojen nopeudet (ms)
 DIFFICULTY_LEVELS = {
-    "Helppo": 400,  # Hitaampi nopeus
-    "Normaali": 250,  # Keskinopeus
-    "Vaikea": 100  # Nopea
+    "Easy": 400,  # Hitaampi nopeus
+    "Normal": 250,  # Keskinopeus
+    "Hard": 100  # Nopea
 }
 
 class SnakeGame(QGraphicsView):
@@ -45,7 +45,7 @@ class SnakeGame(QGraphicsView):
         self.score = 0  # Pistelaskuri
         self.difficulty_index = 0  # Vaikeustason indeksi (helppo, normaali, vaikea)
         self.difficulties = list(DIFFICULTY_LEVELS.keys())  # Vaikeustasojen nimet
-        self.difficulties.append("Sulje peli")  # Lisätään "Sulje peli" vaihtoehto
+        self.difficulties.append("Quit Game")  # Lisätään "Sulje peli" vaihtoehto
         self.selected_difficulty = self.difficulties[self.difficulty_index]  # Oletustaso on "Helppo"
         self.return_to_menu = False  # Tila, joka kertoo palaako päävalikkoon pelin jälkeen
         self.start_menu()  # Näytetään aloitusvalikko
@@ -74,15 +74,15 @@ class SnakeGame(QGraphicsView):
 
     def show_difficulty_options(self):
         # Näytetään valittava vaikeustaso ja sen ohje
-        instruction_text = QGraphicsTextItem("Valitse vaikeustaso tai sulje peli: ")
-        instruction_text.setFont(QFont("Arial", 16))
+        instruction_text = QGraphicsTextItem("Choose difficulty or quit game: ")
+        instruction_text.setFont(QFont("Arial", 15))
         instruction_text.setPos(50, 50)
         self.scene().addItem(instruction_text)
 
         # Näytetään vaikeustasot ja korostetaan valittua
         for i, difficulty in enumerate(self.difficulties):
             difficulty_text = QGraphicsTextItem(difficulty)
-            difficulty_text.setFont(QFont("Arial", 14))
+            difficulty_text.setFont(QFont("showcard gothic", 20))
             # Korostetaan valittua vaihtoehtoa
             if i == self.difficulty_index:
                 difficulty_text.setDefaultTextColor(Qt.red)  # Korostettu punainen väri
@@ -111,7 +111,7 @@ class SnakeGame(QGraphicsView):
                 self.selected_difficulty = self.difficulties[self.difficulty_index]
                 self.show_difficulty_options()
             elif key == Qt.Key_Enter or key == Qt.Key_Return:  # Aloita peli tai sulje sovellus kun Enter painetaan
-                if self.selected_difficulty == "Sulje peli":
+                if self.selected_difficulty == "Quit Game":
                     QApplication.quit()  # Suljetaan sovellus
                 else:
                     self.is_game_started = True
@@ -176,28 +176,28 @@ class SnakeGame(QGraphicsView):
     def print_game(self):
         self.scene().clear()
 
-        # Madon nahka - väri tai tekstuuri
-        colors = [Qt.green, Qt.darkGreen, Qt.cyan]  # Muut segmenttivärit
-
-        # Piirretään madon pää (erottuva väri tai muoto)
-        head_x, head_y = self.snake[0]
-        self.scene().addEllipse(head_x * CELL_SIZE, head_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, 
-                                QPen(Qt.black), QBrush(Qt.yellow))  # Käytä keltaista päätä
-
-        # Piirretään muut segmentit
-        for i, segment in enumerate(self.snake[1:], 1):  # Aloita piirtämään toisesta segmentistä
+        # Piirretään mato
+        for segment in self.snake:
             x, y = segment
-            color = colors[i % len(colors)]  # Valitse väri listalta vuorotellen
-            self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, 
-                                QPen(Qt.black), QBrush(color))
-
+            self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
+        
         # Piirretään pallo
         fx, fy = self.food
-        self.scene().addEllipse(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, 
-                                QPen(Qt.red), QBrush(Qt.red))
+        self.scene().addEllipse(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.red), QBrush(Qt.red))
 
-        # Näytetään pistemäärä
-        self.scene().addText(f"Pisteet: {self.score}", QFont("Arial", 12))
+        # Muutetaan fontti Showcard Gothiciksi
+        score_text = QGraphicsTextItem(f"Score: {self.score}")
+        font = QFont("Showcard Gothic", 18)  # Käytetään Showcard Gothic -fonttia, koko 18
+        score_text.setFont(font)
+
+        # Asetetaan tekstin väri
+        score_text.setDefaultTextColor(Qt.black)
+
+        # Lasketaan tekstin X-koordinaatti, jotta se on keskellä
+        text_width = score_text.boundingRect().width()
+        score_text.setPos((CELL_SIZE * GRID_WIDTH - text_width) / 2, 0)  # Asetetaan yläosaan keskelle
+
+        self.scene().addItem(score_text)
 
     def generate_food(self):
         # Luodaan satunnainen paikka pallolle, varmistetaan ettei se ole maton päällä
@@ -221,11 +221,9 @@ class SnakeGame(QGraphicsView):
         # Palauta väri takaisin normaaliksi hetken kuluttua (esim. 300 ms)
         QTimer.singleShot(300, lambda: self.setBackgroundBrush(QBrush(Qt.white)))  # Palautetaan valkoinen taustaväri
 
-
-        
         # Näytetään "Game Over" -teksti keskellä ruutua
         game_over_text = QGraphicsTextItem("GAME OVER")
-        game_over_text.setFont(QFont("Arial", 24))
+        game_over_text.setFont(QFont("Showcard gothic", 24))
         text_width = game_over_text.boundingRect().width()
         text_height = game_over_text.boundingRect().height()
         
@@ -235,7 +233,7 @@ class SnakeGame(QGraphicsView):
         self.scene().addItem(game_over_text)
 
         # Näytetään ohjeteksti uuden pelin aloittamiseksi
-        restart_text = QGraphicsTextItem("Paina Enter palataksesi päävalikkoon")
+        restart_text = QGraphicsTextItem("Press Enter back to menu")
         restart_text.setFont(QFont("Arial", 16))
         restart_text_width = restart_text.boundingRect().width()
         restart_text.setPos((CELL_SIZE * GRID_WIDTH - restart_text_width) / 2, 
