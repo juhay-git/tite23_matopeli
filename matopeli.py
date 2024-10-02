@@ -203,6 +203,14 @@ class SnakeGame(QGraphicsView):
 
         # Soitetaan game over -ääni
         self.game_over_sound.play()
+
+        # Vaihdetaan pelialueen väri välähdysefektin vuoksi
+        self.setBackgroundBrush(QBrush(Qt.red))  # Muuta pelialueen taustaväri punaiseksi törmäyksessä
+
+        # Palauta väri takaisin normaaliksi hetken kuluttua (esim. 300 ms)
+        QTimer.singleShot(300, lambda: self.setBackgroundBrush(QBrush(Qt.white)))  # Palautetaan valkoinen taustaväri
+
+
         
         # Näytetään "Game Over" -teksti keskellä ruutua
         game_over_text = QGraphicsTextItem("GAME OVER")
