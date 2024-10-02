@@ -51,6 +51,7 @@ class SnakeGame(QGraphicsView):
         self.snake.insert(0, new_head)
         
         self.snake.pop()
+        ## self.score += 1 ## pisteen lisäys kun syödään -JH
 
         self.print_game()
 
@@ -60,8 +61,11 @@ class SnakeGame(QGraphicsView):
         for segment in self.snake:
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
+
+        self.scene().addText(f"Points: {self.score}", QFont("Arial", 10)) ## pistelaskun piirto -JH
         
     def start_game(self):
+        self.score = 0 ## pistelaskun muuttuja -JH
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
         self.timer.start(300)
