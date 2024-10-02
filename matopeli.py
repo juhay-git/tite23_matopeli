@@ -8,6 +8,9 @@ from PySide6.QtCore import Qt, QTimer
 CELL_SIZE = 20
 GRID_WIDTH = 20
 GRID_HEIGHT = 15
+INITIAL_SPEED = 300  # Alkuperäinen nopeus (ms)
+SPEED_INCREMENT = 10  # Nopeus kasvaa, kun käärme kasvaa
+MIN_SPEED = 50
 
 class SnakeGame(QGraphicsView):
     def __init__(self):
@@ -64,6 +67,7 @@ class SnakeGame(QGraphicsView):
         if new_head == self.food:
             self.score += 1  
             self.spawn_food() 
+            self.increase_speed() 
         else:
             self.snake.pop()  
 
@@ -83,6 +87,10 @@ class SnakeGame(QGraphicsView):
             if (x, y) not in self.snake:  
                 self.food = (x, y)
                 break
+        
+    def increase_speed(self):
+        self.speed = max(self.speed - SPEED_INCREMENT, MIN_SPEED)
+        self.timer.start(self.speed)
 
     def print_game(self):
         self.scene().clear()
@@ -105,8 +113,9 @@ class SnakeGame(QGraphicsView):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
         self.score = 0 
+        self.speed = INITIAL_SPEED
         self.spawn_food()  
-        self.timer.start(300)  
+        self.timer.start(self.speed)  
 
 def main():
     app = QApplication(sys.argv)
