@@ -30,6 +30,7 @@ class SnakeGame(QGraphicsView):
         text_x = (self.width() - text_width)
         start_text.setPos(text_x, GRID_HEIGHT * CELL_SIZE / 2)
 
+    
     def keyPressEvent(self, event):
         key = event.key()
         
@@ -49,6 +50,14 @@ class SnakeGame(QGraphicsView):
             elif key == Qt.Key_Down and self.direction != Qt.Key_Up:
                 self.direction = key
 
+    def spawn_food(self):
+        while True:
+            x = random.randint(0, GRID_WIDTH - 1)
+            y = random.randint(0, GRID_HEIGHT - 1)
+            if (x, y) not in self.snake:
+                return x, y
+
+
     def update_game(self):
         head_x, head_y = self.snake[0]
 
@@ -61,6 +70,14 @@ class SnakeGame(QGraphicsView):
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
 
+
+        if new_head == self.food:
+            self.snake.insert(0, new_head)
+            self.food = self.spawn_food()
+        else:
+            self.snake.insert(0, new_head)
+            self.snake.pop()
+
                 # Tarkista törmääkö mato itseensä tai pelialueen reunaan
         if (new_head in self.snake or
             new_head[0] < 0 or new_head[0] >= GRID_WIDTH or
@@ -71,6 +88,7 @@ class SnakeGame(QGraphicsView):
         self.snake.insert(0, new_head)
         
         self.snake.pop()
+
 
         self.print_game()
 
@@ -83,10 +101,14 @@ class SnakeGame(QGraphicsView):
     
         
 
+        fx, fy = self.food
+        self.scene().addRect(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.red))
+        
 
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
+        self.food = self.spawn_food()
         self.timer.start(300)
 
 
