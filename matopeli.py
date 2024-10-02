@@ -115,10 +115,16 @@ class SnakeGame(QGraphicsView):
 
     def start_game(self):
         self.direction = Qt.Key_Right
-        self.snake = [(5, 5), (5, 6), (5, 7)]
+
+        # Luo satunnainen aloituspaikka madolle, varmistaen että mato mahtuu pelikentälle
+        start_x = random.randint(3, GRID_WIDTH - 4)  # Jotta mato ei ylitä rajoja
+        start_y = random.randint(3, GRID_HEIGHT - 4)
+
+        # Alusta mato kolmen segmentin pituiseksi
+        self.snake = [(start_x, start_y), (start_x - 1, start_y), (start_x - 2, start_y)]
 
         self.score = 0  # Alusta pistelasku
-        self.place_food()
+        self.place_food()  # Aseta ruoka pelikentälle
         self.timer.start(300)
 
     def game_over(self):
