@@ -1,15 +1,8 @@
-# 'pip install PySide6' tarvitaan 
 import sys
 import random
-from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QMenu
-from PySide6.QtGui import QPainter, QPen, QBrush, QFont
+from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene
+from PySide6.QtGui import QPainter, QPen, QBrush
 from PySide6.QtCore import Qt, QTimer
-
-## Jennyn kommentti - Oma koodinpätkä tallessa
-# update_game metodiin suuntien tarkistuksen jälkeen
-# \n# board limits\nif new_head in self.snake or not 
-# (0 <= new_head[0] < GRID_WIDTH) or not (0 <= new_head[1] < GRID_HEIGHT):\n  
-#   self.timer.stop()\n    
 
 # vakiot
 CELL_SIZE = 20
@@ -54,22 +47,34 @@ class SnakeGame(QGraphicsView):
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
 
-        self.snake.insert(0, new_head)
-        
-        self.snake.pop()
 
+        
         self.print_game()
+
+    def spawn_food(self):
+        while True:
+            x = random.randint(0, GRID_WIDTH - 1)
+            y = random.randint(0, GRID_HEIGHT - 1)
+            if (x, y) not in self.snake:  # Ruoka ei voi ilmestyä käärmeen päälle
+                self.food = (x, y)
+                break
 
     def print_game(self):
         self.scene().clear()
 
+        # Piirretään käärme
         for segment in self.snake:
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
+
+        # Piirretään ruoka
+        food_x, food_y = self.food
+        self.scene().addEllipse(food_x * CELL_SIZE, food_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.red), QBrush(Qt.red))
         
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
+        self.spawn_food()  # Luo ensimmäinen ruoka
         self.timer.start(300)
 
 def main():
