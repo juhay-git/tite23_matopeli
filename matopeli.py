@@ -23,6 +23,7 @@ class SnakeGame(QGraphicsView):
         
         self.start_game()
 
+    
     def keyPressEvent(self, event):
         key = event.key()
         if key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
@@ -36,6 +37,14 @@ class SnakeGame(QGraphicsView):
             elif key == Qt.Key_Down and self.direction != Qt.Key_Up:
                 self.direction = key
 
+    def spawn_food(self):
+        while True:
+            x = random.randint(0, GRID_WIDTH - 1)
+            y = random.randint(0, GRID_HEIGHT - 1)
+            if (x, y) not in self.snake:
+                return x, y
+
+
     def update_game(self):
         head_x, head_y = self.snake[0]
 
@@ -48,10 +57,12 @@ class SnakeGame(QGraphicsView):
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
 
-        self.snake.insert(0, new_head)
-        
-        self.snake.pop()
-
+        if new_head == self.food:
+            self.snake.insert(0, new_head)
+            self.food = self.spawn_food()
+        else:
+            self.snake.insert(0, new_head)
+            self.snake.pop()
         self.print_game()
 
     def print_game(self):
@@ -61,9 +72,13 @@ class SnakeGame(QGraphicsView):
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
         
+        fx, fy = self.food
+        self.scene().addRect(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.red))
+        
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
+        self.food = self.spawn_food()
         self.timer.start(300)
 
 def main():
