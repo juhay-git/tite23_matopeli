@@ -160,14 +160,25 @@ class SnakeGame(QGraphicsView):
     def print_game(self):
         self.scene().clear()
 
-        # Piirretään mato
-        for segment in self.snake:
+        # Madon nahka - väri tai tekstuuri
+        colors = [Qt.green, Qt.darkGreen, Qt.cyan]  # Muut segmenttivärit
+
+        # Piirretään madon pää (erottuva väri tai muoto)
+        head_x, head_y = self.snake[0]
+        self.scene().addEllipse(head_x * CELL_SIZE, head_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, 
+                                QPen(Qt.black), QBrush(Qt.yellow))  # Käytä keltaista päätä
+
+        # Piirretään muut segmentit
+        for i, segment in enumerate(self.snake[1:], 1):  # Aloita piirtämään toisesta segmentistä
             x, y = segment
-            self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
-        
+            color = colors[i % len(colors)]  # Valitse väri listalta vuorotellen
+            self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, 
+                                QPen(Qt.black), QBrush(color))
+
         # Piirretään pallo
         fx, fy = self.food
-        self.scene().addEllipse(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.red), QBrush(Qt.red))
+        self.scene().addEllipse(fx * CELL_SIZE, fy * CELL_SIZE, CELL_SIZE, CELL_SIZE, 
+                                QPen(Qt.red), QBrush(Qt.red))
 
         # Näytetään pistemäärä
         self.scene().addText(f"Pisteet: {self.score}", QFont("Arial", 12))
