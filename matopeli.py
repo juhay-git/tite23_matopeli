@@ -48,9 +48,21 @@ class SnakeGame(QGraphicsView):
         elif self.direction == Qt.Key_Down:
             new_head = (head_x, head_y + 1)
 
+        # Tarkista törmääkö mato itseensä tai pelialueen reunaan
+        if (new_head in self.snake or
+            new_head[0] < 0 or new_head[0] >= GRID_WIDTH or
+            new_head[1] < 0 or new_head[1] >= GRID_HEIGHT):
+            self.game_over()
+            return
+
         self.snake.insert(0, new_head)
         
-        self.snake.pop()
+        # Tarkista, söikö mato ruokaa
+        if new_head == self.food:
+            self.score += 1
+            self.place_food()  # Lisää uusi ruoka
+        else:
+            self.snake.pop()
 
         self.print_game()
 
@@ -60,11 +72,32 @@ class SnakeGame(QGraphicsView):
         for segment in self.snake:
             x, y = segment
             self.scene().addRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.black), QBrush(Qt.black))
-        
+
+        self.scene().addText(f"Score: {self.score}", QFont("Arial", 12))
+
     def start_game(self):
         self.direction = Qt.Key_Right
         self.snake = [(5, 5), (5, 6), (5, 7)]
+        self.score = 0  # Alusta pistelasku
+        self.place_food()
         self.timer.start(300)
+
+    def place_food(self):
+        # Aseta ruoka satunnaiseen paikkaan
+        while True:
+            self.food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+            if self.food not in self.snake:  # Varmista, että ruoka ei ole madon päällä
+                break
+        food_x, food_y = self.food
+        self.scene().addRect(food_x * CELL_SIZE, food_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QPen(Qt.red), QBrush(Qt.red))
+
+    def game_over(self):
+        # Näytä "Game Over" -teksti pelin päätyttyä
+        game_over_text = self.scene().addText("Game Over", QFont("Arial", 24))
+        text_width = game_over_text.boundingRect().width()
+        text_x = (self.width() - text_width) / 2
+        game_over_text.setPos(text_x, GRID_HEIGHT * CELL_SIZE / 2)
+        self.timer.stop()
 
 def main():
     app = QApplication(sys.argv)
